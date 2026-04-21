@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 type NavbarProps = {
-  activePage?: "home" | "genres";
+  activePage?: "home" | "genres" | "search";
 };
 
 export default function Navbar({ activePage = "home" }: NavbarProps) {
@@ -14,22 +14,23 @@ export default function Navbar({ activePage = "home" }: NavbarProps) {
     <nav className="fixed top-0 w-full z-50 bg-zinc-900/70 backdrop-blur-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
       <div className="flex justify-between items-center px-8 h-20 max-w-screen-2xl mx-auto w-full font-['Inter'] tracking-tight antialiased">
         <div className="flex items-center gap-12">
-          <span className="text-2xl font-black tracking-tighter text-red-600 uppercase">
+          <Link href="/" className="text-2xl font-black tracking-tighter text-red-600 uppercase">
             Cinelab
-          </span>
+          </Link>
           <div className="hidden md:flex items-center gap-8">
-            <Link className={linkClass("home")} href="/">
-              Home
-            </Link>
-            <a className={linkClass("genres")} href="/genres">
-              Genres
-            </a>
+            <Link className={linkClass("home")} href="/">Home</Link>
+            <Link className={linkClass("genres")} href="/genres">Genres</Link>
           </div>
         </div>
         <div className="flex items-center gap-6">
-          <button className="text-zinc-400 hover:text-red-500 transition-colors duration-300 active:scale-95 flex items-center">
+          <Link
+            href="/search"
+            className={`transition-colors duration-300 active:scale-95 flex items-center ${
+              activePage === "search" ? "text-red-600" : "text-zinc-400 hover:text-red-500"
+            }`}
+          >
             <span className="material-symbols-outlined">search</span>
-          </button>
+          </Link>
         </div>
       </div>
     </nav>

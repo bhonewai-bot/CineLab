@@ -4,7 +4,12 @@ import MobileNav from "../components/MobileNav";
 import GenresBentoGrid from "../components/GenresBentoGrid";
 import PopularRow from "../components/PopularRow";
 import NewReleasesRow from "../components/NewReleasesRow";
-import { getGenres, getMoviesByGenre, getPopularMovies, getNowPlayingMovies } from "../lib/tmdb";
+import {
+  getGenres,
+  getMoviesByGenre,
+  getPopularMovies,
+  getNowPlayingMovies,
+} from "../lib/tmdb";
 
 export default async function GenresPage() {
   const [genres, popular, nowPlaying] = await Promise.all([
