@@ -1,29 +1,36 @@
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import MobileNav from "../components/MobileNav";
-import GenresBentoGrid from "../components/GenresBentoGrid";
-import PopularRow from "../components/PopularRow";
-import NewReleasesRow from "../components/NewReleasesRow";
-import {
-  getGenres,
-  getMoviesByGenre,
-  getPopularMovies,
-  getNowPlayingMovies,
-} from "../lib/tmdb";
+import Footer from "@/components/Footer";
+import GenresBentoGrid from "@/components/GenresBentoGrid";
+import MobileNav from "@/components/MobileNav";
+import Navbar from "@/components/Navbar";
+import NewReleasesRow from "@/components/NewReleasesRow";
+import PopularRow from "@/components/PopularRow";
+
+const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
 export default async function GenresPage() {
-  const [genres, popular, nowPlaying] = await Promise.all([
-    getGenres(),
-    getPopularMovies(),
-    getNowPlayingMovies(),
+  const [genresData, popular, nowPlaying] = await Promise.all([
+    fetch(`${BASE}/api/genres`, { next: { revalidate: 86400 } }).then((r) =>
+      r.json(),
+    ),
+    fetch(`${BASE}/api/movies?type=popular`, {
+      next: { revalidate: 3600 },
+    }).then((r) => r.json()),
+    fetch(`${BASE}/api/movies?type=now_playing`, {
+      next: { revalidate: 3600 },
+    }).then((r) => r.json()),
   ]);
 
-  // For each genre, fetch the top movie and use its backdrop as the card image
+  const genres = genresData.genres ?? [];
+
+  // For each genre, fetch its top movie backdrop
   const genresWithImages = await Promise.all(
     genres.map(async (genre: { id: number; name: string }) => {
       try {
-        const movies = await getMoviesByGenre(genre.id);
-        const topMovie = movies.find(
+        const res = await fetch(`${BASE}/api/genres?id=${genre.id}`, {
+          next: { revalidate: 3600 },
+        });
+        const data = await res.json();
+        const topMovie = (data.results ?? []).find(
           (m: { backdrop_path: string }) => m.backdrop_path,
         );
         return {
@@ -42,7 +49,6 @@ export default async function GenresPage() {
     <>
       <Navbar activePage="genres" />
       <main>
-        {/* Editorial Header — full width with padding */}
         <div className="pt-32 pb-12 px-8 md:px-16">
           <span className="text-[#fabd00] uppercase tracking-[0.2em] font-bold text-xs">
             Curated Categories
@@ -57,15 +63,13 @@ export default async function GenresPage() {
           </p>
         </div>
 
-        {/* Bento Grid — full width with padding */}
         <div className="px-8 md:px-16">
           <GenresBentoGrid genres={genresWithImages} />
         </div>
 
-        {/* Movie rows below — same style as home page */}
         <div className="pb-20 space-y-16 mt-20">
-          <PopularRow movies={popular} />
-          <NewReleasesRow movies={nowPlaying} />
+          <PopularRow movies={popular.results ?? []} />
+          <NewReleasesRow movies={nowPlaying.results ?? []} />
         </div>
       </main>
       <Footer />

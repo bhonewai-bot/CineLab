@@ -1,6 +1,8 @@
 import Image from "next/image";
+import Link from "next/link";
 
 type MovieCardProps = {
+  id?: number;
   title: string;
   year: string;
   genre: string;
@@ -10,6 +12,7 @@ type MovieCardProps = {
 };
 
 export default function MovieCard({
+  id,
   title,
   year,
   genre,
@@ -17,16 +20,17 @@ export default function MovieCard({
   image,
   isNew,
 }: MovieCardProps) {
-  return (
+  const content = (
     <div className="flex-none w-48 md:w-56 group cursor-pointer">
       <div className="relative aspect-2/3 rounded-lg overflow-hidden bg-[#1c1b1b] transition-transform duration-300 group-hover:scale-105">
-        <Image fill src={image} alt={title} />
-        {!isNew && (
-          <div className="absolute inset-0 bg-linear-to-t from-zinc-950 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-            <button className="w-full py-2 bg-[#e50914] text-white rounded font-bold text-sm">
-              Add to List
-            </button>
-          </div>
+        {image && (
+          <Image
+            fill
+            src={image}
+            alt={title}
+            className="object-cover"
+            sizes="(max-width: 768px) 192px, 224px"
+          />
         )}
       </div>
       <div className="mt-4 space-y-1">
@@ -56,10 +60,18 @@ export default function MovieCard({
                 <span className="text-[10px] font-bold">{rating}</span>
               </div>
             </div>
-            <h3 className="text-zinc-100 font-bold truncate">{title}</h3>
+            <h3 className="text-zinc-100 font-bold truncate group-hover:text-[#ffb4aa] transition-colors">
+              {title}
+            </h3>
           </>
         )}
       </div>
     </div>
   );
+
+  if (id) {
+    return <Link href={`/movies/${id}`}>{content}</Link>;
+  }
+
+  return content;
 }

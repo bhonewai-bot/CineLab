@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import MobileNav from "../components/MobileNav";
-import SearchCard from "../components/SearchCard";
+import Navbar from "../../components/Navbar";
+import Footer from "../../components/Footer";
+import MobileNav from "../../components/MobileNav";
+import SearchCard from "../../components/SearchCard";
 import { Movie } from "../lib/types";
 
 const QUICK_FILTERS = ["Trending", "Sci-Fi", "Noir", "Documentary"];

@@ -39,8 +39,11 @@ export async function GET(req: NextRequest) {
       break;
     default:
       return NextResponse.json(
-        { error: "Invalid or missing `type` param. Use: popular | trending | now_playing" },
-        { status: 400 }
+        {
+          error:
+            "Invalid or missing `type` param. Use: popular | trending | now_playing",
+        },
+        { status: 400 },
       );
   }
 
@@ -52,7 +55,7 @@ export async function GET(req: NextRequest) {
   if (!res.ok) {
     return NextResponse.json(
       { error: "Failed to fetch from TMDB", results: [] },
-      { status: res.status }
+      { status: res.status },
     );
   }
 
