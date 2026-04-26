@@ -1,43 +1,70 @@
 /**
- * Internal API helpers — call our own Route Handlers instead of TMDB directly.
- * Using internal routes keeps all TMDB auth server-side and centralizes caching.
+ * Direct TMDB helpers for server-side use (SSR / SSG).
+ *
+ * Server components and pages call these functions instead of fetching
+ * through internal /api/* route handlers. Self-referencing fetches break
+ * at build time on Vercel because no server is running yet.
+ *
+ * The /api/* routes remain available for any client-side fetching.
  */
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+const TMDB_BASE = "https://api.themoviedb.org/3";
 
-async function fetchInternal<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE}${path}`, { next: { revalidate: 3600 } });
-  if (!res.ok) throw new Error(`Internal fetch failed: ${path}`);
+function tmdbHeaders() {
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${process.env.TMDB_API_TOKEN}`,
+  };
+}
+
+async function tmdbFetch<T>(path: string, revalidate = 3600): Promise<T> {
+  const res = await fetch(`${TMDB_BASE}${path}`, {
+    headers: tmdbHeaders(),
+    next: { revalidate },
+  });
+  if (!res.ok) throw new Error(`TMDB fetch failed: ${path} (${res.status})`);
   return res.json();
 }
 
 export async function getPopularMovies() {
-  const data = await fetchInternal<{ results: [] }>("/api/movies?type=popular");
+  const data = await tmdbFetch<{ results: [] }>(
+    "/movie/popular?language=en-US&page=1"
+  );
   return data.results ?? [];
 }
 
 export async function getTrendingMovies() {
-  const data = await fetchInternal<{ results: [] }>(
-    "/api/movies?type=trending",
+  const data = await tmdbFetch<{ results: [] }>(
+    "/trending/movie/week?language=en-US"
   );
   return data.results ?? [];
 }
 
 export async function getNowPlayingMovies() {
-  const data = await fetchInternal<{ results: [] }>(
-    "/api/movies?type=now_playing",
+  const data = await tmdbFetch<{ results: [] }>(
+    "/movie/now_playing?language=en-US&page=1"
   );
   return data.results ?? [];
 }
 
 export async function getGenres() {
-  const data = await fetchInternal<{ genres: [] }>("/api/genres");
+  const data = await tmdbFetch<{ genres: [] }>(
+    "/genre/movie/list?language=en-US",
+    86400 // genres rarely change — cache for 24h
+  );
   return data.genres ?? [];
 }
 
 export async function getMoviesByGenre(genreId: number) {
-  const data = await fetchInternal<{ results: [] }>(
-    `/api/genres?id=${genreId}`,
+  const data = await tmdbFetch<{ results: [] }>(
+    `/discover/movie?with_genres=${genreId}&language=en-US&page=1&sort_by=popularity.desc`
   );
   return data.results ?? [];
+}
+
+export async function getMovieDetail(id: string) {
+  const data = await tmdbFetch<object>(
+    `/movie/${id}?language=en-US&append_to_response=credits,videos,similar`
+  );
+  return data;
 }

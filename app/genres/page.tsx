@@ -4,45 +4,38 @@ import MobileNav from "@/components/MobileNav";
 import Navbar from "@/components/Navbar";
 import NewReleasesRow from "@/components/NewReleasesRow";
 import PopularRow from "@/components/PopularRow";
-
-const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+import {
+  getGenres,
+  getMoviesByGenre,
+  getNowPlayingMovies,
+  getPopularMovies,
+} from "../lib/tmdb";
 
 export default async function GenresPage() {
-  const [genresData, popular, nowPlaying] = await Promise.all([
-    fetch(`${BASE}/api/genres`, { next: { revalidate: 86400 } }).then((r) =>
-      r.json(),
-    ),
-    fetch(`${BASE}/api/movies?type=popular`, {
-      next: { revalidate: 3600 },
-    }).then((r) => r.json()),
-    fetch(`${BASE}/api/movies?type=now_playing`, {
-      next: { revalidate: 3600 },
-    }).then((r) => r.json()),
+  const [genres, popular, nowPlaying] = await Promise.all([
+    getGenres(),
+    getPopularMovies(),
+    getNowPlayingMovies(),
   ]);
-
-  const genres = genresData.genres ?? [];
 
   // For each genre, fetch its top movie backdrop
   const genresWithImages = await Promise.all(
     genres.map(async (genre: { id: number; name: string }) => {
       try {
-        const res = await fetch(`${BASE}/api/genres?id=${genre.id}`, {
-          next: { revalidate: 3600 },
-        });
-        const data = await res.json();
-        const topMovie = (data.results ?? []).find(
-          (m: { backdrop_path: string }) => m.backdrop_path,
+        const results = await getMoviesByGenre(genre.id);
+        const topMovie = (results as { backdrop_path?: string }[]).find(
+          (m) => m.backdrop_path
         );
         return {
           ...genre,
-          backdropImage: topMovie
+          backdropImage: topMovie?.backdrop_path
             ? `https://image.tmdb.org/t/p/w780${topMovie.backdrop_path}`
             : "",
         };
       } catch {
         return { ...genre, backdropImage: "" };
       }
-    }),
+    })
   );
 
   return (
@@ -68,8 +61,8 @@ export default async function GenresPage() {
         </div>
 
         <div className="pb-20 space-y-16 mt-20">
-          <PopularRow movies={popular.results ?? []} />
-          <NewReleasesRow movies={nowPlaying.results ?? []} />
+          <PopularRow movies={popular} />
+          <NewReleasesRow movies={nowPlaying} />
         </div>
       </main>
       <Footer />

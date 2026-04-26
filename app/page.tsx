@@ -4,31 +4,28 @@ import Navbar from "@/components/Navbar";
 import NewReleasesRow from "@/components/NewReleasesRow";
 import PopularRow from "@/components/PopularRow";
 import TrendingSection from "@/components/TrendingSection";
-
-const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
+import {
+  getNowPlayingMovies,
+  getPopularMovies,
+  getTrendingMovies,
+} from "./lib/tmdb";
 
 export default async function Home() {
   const [popular, trending, nowPlaying] = await Promise.all([
-    fetch(`${BASE}/api/movies?type=popular`, {
-      next: { revalidate: 3600 },
-    }).then((r) => r.json()),
-    fetch(`${BASE}/api/movies?type=trending`, {
-      next: { revalidate: 3600 },
-    }).then((r) => r.json()),
-    fetch(`${BASE}/api/movies?type=now_playing`, {
-      next: { revalidate: 3600 },
-    }).then((r) => r.json()),
+    getPopularMovies(),
+    getTrendingMovies(),
+    getNowPlayingMovies(),
   ]);
 
   return (
     <>
       <Navbar />
       <main>
-        <Hero movies={trending.results?.slice(0, 5)} />
+        <Hero movies={trending.slice(0, 5)} />
         <div className="relative -mt-24 pb-20 space-y-16 z-20">
-          <PopularRow movies={popular.results ?? []} />
-          <TrendingSection movies={trending.results ?? []} />
-          <NewReleasesRow movies={nowPlaying.results ?? []} />
+          <PopularRow movies={popular} />
+          <TrendingSection movies={trending} />
+          <NewReleasesRow movies={nowPlaying} />
         </div>
       </main>
       <Footer />

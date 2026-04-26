@@ -10,8 +10,8 @@ import {
 } from "../../lib/types";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { getMovieDetail } from "../../lib/tmdb";
 
-const BASE = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 const TMDB_IMAGE = "https://image.tmdb.org/t/p";
 
 export default async function MovieDetailPage({
@@ -21,19 +21,16 @@ export default async function MovieDetailPage({
 }) {
   const { id } = await params;
 
-  const res = await fetch(`${BASE}/api/movies/${id}`, {
-    next: { revalidate: 3600 },
-  });
-
-  if (!res.ok) {
+  let movie: MovieDetail;
+  try {
+    movie = (await getMovieDetail(id)) as MovieDetail;
+  } catch {
     return (
       <div className="min-h-screen flex items-center justify-center text-zinc-400">
         Movie not found.
       </div>
     );
   }
-
-  const movie: MovieDetail = await res.json();
 
   const director = movie.credits?.crew?.find(
     (c: CrewMember) => c.job === "Director",
@@ -171,7 +168,7 @@ export default async function MovieDetailPage({
                   <span className="material-symbols-outlined">arrow_back</span>
                   Back
                 </Link>
-              </div>{" "}
+              </div>
             </div>
           </div>
 
