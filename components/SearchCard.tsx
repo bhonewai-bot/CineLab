@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Movie } from "../app/lib/types";
+import { Movie } from "../lib/types";
 
 const TMDB_IMAGE_BASE = "https://image.tmdb.org/t/p/w500";
 
 export default function SearchCard({ movie }: { movie: Movie }) {
   const year = movie.release_date?.slice(0, 4) ?? "—";
   const rating = Math.round(movie.vote_average * 10) / 10;
-  const image = movie.poster_path ? `${TMDB_IMAGE_BASE}${movie.poster_path}` : null;
+  const image = movie.poster_path
+    ? `${TMDB_IMAGE_BASE}${movie.poster_path}`
+    : null;
 
   return (
     <Link href={`/movies/${movie.id}`} className="group cursor-pointer">
@@ -26,7 +28,10 @@ export default function SearchCard({ movie }: { movie: Movie }) {
           </div>
         )}
         <div className="absolute top-3 right-3 px-2 py-1 bg-[#fabd00]/90 backdrop-blur rounded text-[10px] font-black text-[#261a00] flex items-center gap-1">
-          <span className="material-symbols-outlined text-[12px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+          <span
+            className="material-symbols-outlined text-[12px]"
+            style={{ fontVariationSettings: "'FILL' 1" }}
+          >
             star
           </span>
           {rating}
@@ -35,7 +40,9 @@ export default function SearchCard({ movie }: { movie: Movie }) {
       <h3 className="font-bold text-base group-hover:text-[#ffb4aa] transition-colors duration-300 leading-tight line-clamp-2">
         {movie.title}
       </h3>
-      <p className="text-zinc-500 text-xs mt-1 uppercase tracking-tighter">{year}</p>
+      <p className="text-zinc-500 text-xs mt-1 uppercase tracking-tighter">
+        {year}
+      </p>
     </Link>
   );
 }

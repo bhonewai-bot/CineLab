@@ -1,17 +1,33 @@
-import { Movie } from "../app/lib/types";
+import { Movie } from "@/lib/types";
 import MovieCard from "./MovieCard";
+import { extractYear, formatRating } from "@/lib/utils";
 
-export default function NewReleasesRow({ movies }: { movies: Movie[] }) {
+type MovieRowProps = {
+  label: string;
+  title: string;
+  movies: Movie[];
+  isNew?: boolean;
+};
+
+export default function MovieRow({
+  label,
+  title,
+  movies,
+  isNew,
+}: MovieRowProps) {
   return (
     <section className="pl-8 md:pl-16">
       <div className="flex justify-between items-end pr-8 md:pr-16 mb-6">
         <div>
           <span className="text-[#e50914] text-xs font-bold uppercase tracking-[0.2em] mb-2 block">
-            Freshly Added
+            {label}
           </span>
-          <h2 className="text-3xl font-black tracking-tight">New Releases</h2>
+          <h2 className="text-3xl font-black tracking-tight">{title}</h2>
         </div>
-        <a className="text-zinc-500 hover:text-red-500 text-sm font-medium transition-colors" href="#">
+        <a
+          className="text-zinc-500 hover:text-red-500 text-sm font-medium transition-colors"
+          href="#"
+        >
           See all
         </a>
       </div>
@@ -21,11 +37,10 @@ export default function NewReleasesRow({ movies }: { movies: Movie[] }) {
             key={movie.id}
             id={movie.id}
             title={movie.title}
-            year={movie.release_date?.slice(0, 4) ?? ""}
-            rating={Math.round(movie.vote_average * 10) / 10}
+            year={extractYear(movie.release_date)}
+            rating={formatRating(movie.vote_average)}
             image={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-            genre=""
-            isNew
+            isNew={isNew}
           />
         ))}
       </div>

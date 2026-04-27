@@ -5,7 +5,6 @@ type MovieCardProps = {
   id?: number;
   title: string;
   year: string;
-  genre: string;
   rating: number;
   image: string;
   isNew?: boolean;
@@ -15,7 +14,6 @@ export default function MovieCard({
   id,
   title,
   year,
-  genre,
   rating,
   image,
   isNew,
@@ -40,7 +38,7 @@ export default function MovieCard({
             <div className="flex items-center gap-3">
               <span className="text-[10px] text-zinc-500 font-bold">NEW</span>
               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-                {genre}
+                {year}
               </span>
             </div>
           </>
@@ -48,7 +46,7 @@ export default function MovieCard({
           <>
             <div className="flex justify-between items-center">
               <span className="text-[10px] text-zinc-500 font-bold uppercase tracking-wider">
-                {year} • {genre}
+                {year}
               </span>
               <div className="flex items-center gap-0.5 text-[#fabd00]">
                 <span

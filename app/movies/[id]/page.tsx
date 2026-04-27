@@ -7,10 +7,8 @@ import {
   CrewMember,
   Video,
   Movie,
-} from "../../lib/types";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import { getMovieDetail } from "../../lib/tmdb";
+} from "../../../lib/types";
+import { getMovieDetail } from "../../../lib/tmdb";
 
 const TMDB_IMAGE = "https://image.tmdb.org/t/p";
 
@@ -49,7 +47,6 @@ export default async function MovieDetailPage({
 
   return (
     <>
-      <Navbar />
       <main>
         {/* Backdrop Hero */}
         <section className="relative w-full h-[70vh] overflow-hidden">
@@ -221,7 +218,6 @@ export default async function MovieDetailPage({
                     id={m.id}
                     title={m.title}
                     year={m.release_date?.slice(0, 4) ?? ""}
-                    genre=""
                     rating={Math.round(m.vote_average * 10) / 10}
                     image={
                       m.poster_path ? `${TMDB_IMAGE}/w500${m.poster_path}` : ""
@@ -233,7 +229,6 @@ export default async function MovieDetailPage({
           )}
         </div>
       </main>
-      <Footer />
     </>
   );
 }

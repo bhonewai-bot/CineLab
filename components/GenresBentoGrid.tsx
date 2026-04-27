@@ -1,4 +1,7 @@
-import { Genre } from "../app/lib/types";
+"use client";
+
+import { useState } from "react";
+import { Genre } from "../lib/types";
 import GenreCard from "./GenreCard";
 
 // Each row must add up to 6 columns at lg breakpoint
@@ -69,13 +72,13 @@ const fallbackImages: Record<string, string> = {
 
 type GenreWithImage = Genre & { backdropImage: string };
 
-const moodChips = [
-  { label: "Gritty", active: true },
-  { label: "Heartwarming", active: false },
-  { label: "Mind-Bending", active: false },
-  { label: "Nostalgic", active: false },
-  { label: "Oscars Winner", active: false },
-  { label: "Hidden Gem", active: false },
+const MOOD_CHIPS = [
+  "Gritty",
+  "Heartwarming",
+  "Mind-Bending",
+  "Nostalgic",
+  "Oscars Winner",
+  "Hidden Gem",
 ];
 
 export default function GenresBentoGrid({
@@ -83,6 +86,8 @@ export default function GenresBentoGrid({
 }: {
   genres: GenreWithImage[];
 }) {
+  const [activeMood, setActiveMood] = useState<string>("Gritty");
+
   const bentoGenres = genres.filter((g) => bentoConfig[g.name]);
   const orderedKeys = Object.keys(bentoConfig);
   const sortedGenres = [...bentoGenres].sort(
@@ -115,16 +120,17 @@ export default function GenresBentoGrid({
           Narrow by mood
         </h4>
         <div className="flex flex-wrap gap-3">
-          {moodChips.map((chip) => (
+          {MOOD_CHIPS.map((label) => (
             <button
-              key={chip.label}
+              key={label}
+              onClick={() => setActiveMood(label)}
               className={`px-6 py-2 rounded-full text-sm font-bold transition-all hover:scale-105 ${
-                chip.active
+                activeMood === label
                   ? "bg-[#fabd00] text-[#261a00]"
                   : "bg-[#2a2a2a] text-[#e5e2e1] font-medium hover:bg-[#353534]"
               }`}
             >
-              {chip.label}
+              {label}
             </button>
           ))}
         </div>

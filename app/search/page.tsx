@@ -1,80 +1,121 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import Navbar from "../../components/Navbar";
-import Footer from "../../components/Footer";
-import MobileNav from "../../components/MobileNav";
+import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 import SearchCard from "../../components/SearchCard";
-import { Movie } from "../lib/types";
+import { Movie } from "../../lib/types";
 
 const QUICK_FILTERS = ["Trending", "Sci-Fi", "Noir", "Documentary"];
+const SEARCH_DEBOUNCE_MS = 400;
+
+type SearchState = {
+  results: Movie[];
+  totalResults: number;
+  status: "idle" | "loading" | "success" | "error";
+};
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<Movie[]>([]);
-  const [totalResults, setTotalResults] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [searched, setSearched] = useState(false);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [searchState, setSearchState] = useState<SearchState>({
+    results: [],
+    totalResults: 0,
+    status: "idle",
+  });
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (debounceRef.current) clearTimeout(debounceRef.current);
+    const trimmedQuery = query.trim();
 
-    if (query.trim() === "") {
-      setResults([]);
-      setTotalResults(0);
-      setSearched(false);
-      setLoading(false);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
+    if (!trimmedQuery) {
       return;
     }
 
-    setLoading(true);
-    setSearched(false);
+    const controller = new AbortController();
 
-    debounceRef.current = setTimeout(async () => {
+    timeoutRef.current = setTimeout(async () => {
       try {
         const res = await fetch(
-          `/api/search?query=${encodeURIComponent(query)}`,
+          `/api/search?query=${encodeURIComponent(trimmedQuery)}`,
+          { signal: controller.signal },
         );
+
+        if (!res.ok) {
+          throw new Error(`Search failed with status ${res.status}`);
+        }
+
         const data = await res.json();
-        setResults(data.results ?? []);
-        setTotalResults(data.total_results ?? 0);
-      } catch {
-        setResults([]);
-        setTotalResults(0);
-      } finally {
-        setLoading(false);
-        setSearched(true); // always mark as searched after attempt
+        setSearchState({
+          results: data.results ?? [],
+          totalResults: data.total_results ?? 0,
+          status: "success",
+        });
+      } catch (error) {
+        if ((error as Error).name === "AbortError") {
+          return;
+        }
+
+        setSearchState({
+          results: [],
+          totalResults: 0,
+          status: "error",
+        });
       }
-    }, 400);
+    }, SEARCH_DEBOUNCE_MS);
 
     return () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
+      controller.abort();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
     };
   }, [query]);
 
+  const updateQuery = (nextQuery: string) => {
+    setQuery(nextQuery);
+
+    if (!nextQuery.trim()) {
+      setSearchState({
+        results: [],
+        totalResults: 0,
+        status: "idle",
+      });
+      return;
+    }
+
+    setSearchState((current) => ({
+      ...current,
+      status: "loading",
+    }));
+  };
+
   const handleQuickFilter = (label: string) => {
     if (label === "Trending") return;
-    setQuery(label);
+    updateQuery(label);
     inputRef.current?.focus();
   };
 
   const handleClear = () => {
-    setQuery("");
-    setResults([]);
-    setTotalResults(0);
-    setSearched(false);
+    updateQuery("");
     inputRef.current?.focus();
   };
 
-  const isEmpty = searched && !loading && results.length === 0;
-  const hasResults = !loading && results.length > 0;
-  const isDefault = !searched && !loading && query === "";
+  const trimmedQuery = query.trim();
+  const { results, totalResults, status } = searchState;
+  const isLoading = status === "loading";
+  const hasAttemptedSearch = trimmedQuery !== "" && status !== "idle";
+  const hasResults = status === "success" && results.length > 0;
+  const isEmpty = hasAttemptedSearch && !isLoading && results.length === 0;
+  const isDefault = trimmedQuery === "" && status === "idle";
 
   return (
     <>
-      <Navbar activePage="search" />
       <main className="min-h-screen pt-32 pb-20 px-8 max-w-screen-2xl mx-auto">
         {/* Search Input */}
         <div className="mb-16">
@@ -87,7 +128,7 @@ export default function SearchPage() {
               <input
                 ref={inputRef}
                 value={query}
-                onChange={(e) => setQuery(e.target.value)}
+                onChange={(e) => updateQuery(e.target.value)}
                 className="w-full bg-[#1c1b1b] rounded-xl py-5 pl-16 pr-14 text-xl focus:outline-none focus:ring-2 focus:ring-[#e50914] transition-all placeholder:text-zinc-600 text-[#e5e2e1] shadow-2xl"
                 placeholder="Search movies, directors, or actors..."
                 type="text"
@@ -124,7 +165,7 @@ export default function SearchPage() {
         </div>
 
         {/* Loading spinner */}
-        {loading && (
+        {isLoading && (
           <div className="flex justify-center items-center py-32">
             <div className="w-10 h-10 border-2 border-[#e50914] border-t-transparent rounded-full animate-spin" />
           </div>
@@ -167,12 +208,12 @@ export default function SearchPage() {
               >
                 Clear Search
               </button>
-              <a
+              <Link
                 href="/genres"
                 className="px-8 py-3 rounded bg-[#353534] text-[#e5e2e1] font-bold text-sm tracking-wide active:scale-95 transition-all"
               >
                 Browse Genres
-              </a>
+              </Link>
             </div>
           </div>
         )}
@@ -189,8 +230,6 @@ export default function SearchPage() {
           </div>
         )}
       </main>
-      <Footer />
-      <MobileNav />
     </>
   );
 }

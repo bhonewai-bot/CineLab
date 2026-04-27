@@ -5,19 +5,21 @@ export default function Footer() {
         <div className="flex flex-col items-center md:items-start gap-4">
           <span className="text-xl font-bold text-zinc-100">Cinelab</span>
           <p className="text-zinc-500 text-center md:text-left">
-            © 2024 Cinelab. All rights reserved. The Digital Curator.
+            © 2026 Cinelab. All rights reserved. The Digital Curator.
           </p>
         </div>
         <div className="flex gap-8">
-          {["Privacy Policy", "Terms of Service", "Help Center", "Contact"].map((link) => (
-            <a
-              key={link}
-              className="text-zinc-500 hover:text-amber-500 transition-colors duration-200 opacity-80 hover:opacity-100"
-              href="#"
-            >
-              {link}
-            </a>
-          ))}
+          {["Privacy Policy", "Terms of Service", "Help Center", "Contact"].map(
+            (link) => (
+              <a
+                key={link}
+                className="text-zinc-500 hover:text-amber-500 transition-colors duration-200 opacity-80 hover:opacity-100"
+                href="#"
+              >
+                {link}
+              </a>
+            ),
+          )}
         </div>
         <div className="flex gap-4">
           <button className="w-10 h-10 rounded-full flex items-center justify-center bg-[#353534] text-zinc-400 hover:text-[#ffb4aa] transition-colors">

@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Movie } from "../app/lib/types";
+import { Movie } from "../lib/types";
 
 type HeroProps = {
   movies?: Movie[];
@@ -201,17 +201,6 @@ export default function Hero({ movies }: HeroProps) {
           ))}
         </div>
       )}
-
-      <style jsx>{`
-        @keyframes heroProgress {
-          from {
-            width: 0%;
-          }
-          to {
-            width: 100%;
-          }
-        }
-      `}</style>
     </section>
   );
 }
