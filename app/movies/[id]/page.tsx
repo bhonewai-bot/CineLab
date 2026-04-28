@@ -1,16 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
-import MovieCard from "../../../components/MovieCard";
-import {
-  MovieDetail,
-  CastMember,
-  CrewMember,
-  Video,
-  Movie,
-} from "../../../lib/types";
-import { getMovieDetail } from "../../../lib/tmdb";
+import { MovieDetail, CastMember, CrewMember, Video, Movie } from "@/lib/types";
+import { getMovieDetail, getPopularMovies } from "@/lib/tmdb";
+import MovieCard from "@/components/MovieCard";
+import { TMDB_IMAGE } from "@/lib/utils";
 
-const TMDB_IMAGE = "https://image.tmdb.org/t/p";
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const movies = await getPopularMovies();
+  return movies.map((movie) => ({ id: movie.id.toString() }));
+}
 
 export default async function MovieDetailPage({
   params,

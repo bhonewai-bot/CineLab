@@ -63,6 +63,7 @@ export async function getMoviesByGenre(genreId: number): Promise<Movie[]> {
 export async function getMovieDetail(id: string): Promise<MovieDetail> {
   const data = await tmdbFetch<MovieDetail>(
     `/movie/${id}?language=en-US&append_to_response=credits,videos,similar`,
+    3600,
   );
   return data;
 }
