@@ -101,9 +101,8 @@ export default function AiChat() {
         .icon-spin-out { animation: spin-out 0.25s ease forwards; }
       `}</style>
 
-      {/* Floating button */}
-      <div className="fixed bottom-6 right-6 z-50">
-        {/* Pulse rings — only visible when closed */}
+      {/* Floating button — bottom-right on mobile (above nav) and desktop */}
+      <div className="fixed z-[60] bottom-20 right-6 md:bottom-6">
         {!open && (
           <>
             <span className="ai-btn-ring-1 absolute inset-0 rounded-full bg-[#e50914] block pointer-events-none" />
@@ -113,31 +112,33 @@ export default function AiChat() {
 
         <button
           onClick={() => setOpen((o) => !o)}
-          className={`
-            relative w-14 h-14 rounded-full text-white flex items-center justify-center
-            shadow-[0_0_20px_rgba(229,9,20,0.5)] hover:shadow-[0_0_32px_rgba(229,9,20,0.75)]
-            active:scale-90 transition-all duration-200 overflow-hidden
-            ai-btn-shimmer
-          `}
+          className="relative w-14 h-14 rounded-full text-white flex items-center justify-center shadow-[0_0_20px_rgba(229,9,20,0.5)] hover:shadow-[0_0_32px_rgba(229,9,20,0.75)] active:scale-90 transition-all duration-200 overflow-hidden ai-btn-shimmer"
           style={{ transform: open ? "scale(1.05)" : "scale(1)" }}
           aria-label="Open AI movie assistant"
         >
-          {/* Icon — swaps with a spin on toggle */}
-          <span
-            key={open ? "close" : "bot"}
-            className={`material-symbols-outlined text-2xl icon-spin-in`}
-          >
+          <span key={open ? "close" : "bot"} className="material-symbols-outlined text-2xl icon-spin-in">
             {open ? "close" : "smart_toy"}
           </span>
         </button>
       </div>
 
-      {/* Chat panel */}
+      {/* Chat panel
+          Mobile:  centered horizontally, w-[calc(100%-32px)], bottom sits 16px above the button top
+          Desktop: anchored bottom-right, fixed 380px width
+          Button is bottom-20 (80px) + h-14 (56px) = top at 136px from bottom → panel bottom = 136 + 16 = 152px
+      */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-95 max-h-150 flex flex-col rounded-2xl overflow-hidden bg-[#1c1b1b] border border-zinc-800 shadow-2xl">
+        <div className="
+          fixed z-[60] flex flex-col overflow-hidden
+          bg-[#1c1b1b] border border-zinc-800 shadow-2xl rounded-2xl
+
+          bottom-[152px] left-1/2 -translate-x-1/2 w-[calc(100%-32px)] max-h-[60vh]
+
+          md:bottom-24 md:left-auto md:right-6 md:translate-x-0 md:w-[380px] md:max-h-[600px]
+        ">
           {/* Header */}
           <div className="flex items-center gap-3 px-5 py-4 bg-[#201f1f] border-b border-zinc-800">
-            <div className="w-8 h-8 rounded-full bg-[#e50914] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-[#e50914] flex items-center justify-center shrink-0">
               <span className="material-symbols-outlined text-white text-base">
                 smart_toy
               </span>
@@ -149,7 +150,7 @@ export default function AiChat() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-75 max-h-110">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4">
             {messages.length === 0 && (
               <div className="text-center py-8">
                 <span className="material-symbols-outlined text-zinc-600 text-5xl block mb-3">

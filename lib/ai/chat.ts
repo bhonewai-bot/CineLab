@@ -33,7 +33,12 @@ Response format:
 - Include title, year, and rating for each movie
 - Keep responses concise — max 5–7 movies per list
 - When linking to a movie, use its url field from tool results
-- Tone: friendly and natural`;
+- Tone: friendly and natural
+
+Language:
+- Detect the language the user is writing in and always reply in that same language
+- If the user writes in Burmese (မြန်မာဘာသာ), respond fully in Burmese
+- Movie titles can be kept in their original English title followed by a Burmese transliteration if helpful`;
 
 type Message = OpenAI.Chat.ChatCompletionMessageParam;
 
