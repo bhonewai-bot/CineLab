@@ -10,6 +10,11 @@
 
 import { Genre, Movie, MovieDetail } from "./types";
 
+export type SearchMoviesResult = {
+  results: Movie[];
+  total_results: number;
+};
+
 const TMDB_BASE = "https://api.themoviedb.org/3";
 
 function tmdbHeaders() {
@@ -66,4 +71,24 @@ export async function getMovieDetail(id: string): Promise<MovieDetail> {
     3600,
   );
   return data;
+}
+
+export async function searchMovies(query: string): Promise<SearchMoviesResult> {
+  const data = await tmdbFetch<{ results: Movie[]; total_results: number }>(
+    `/search/movie?query=${encodeURIComponent(query)}&language=en-US&include_adult=false`,
+    0,
+  );
+  return {
+    results: data.results ?? [],
+
+    total_results: data.total_results ?? 0,
+  };
+}
+
+export async function getSimilarMovies(movieId: string): Promise<Movie[]> {
+  const data = await tmdbFetch<{ results: Movie[] }>(
+    `/movie/${movieId}/similar?language=en-US&page=1`,
+    0,
+  );
+  return data.results ?? [];
 }

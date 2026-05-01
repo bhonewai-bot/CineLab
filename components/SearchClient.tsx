@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import SearchCard from "@/components/SearchCard";
 import { Movie } from "@/lib/types";
-import { searchMovies } from "@/app/actions/search";
+import { searchMoviesAction } from "@/app/actions/search";
 
 const QUICK_FILTERS = ["Trending", "Sci-Fi", "Noir", "Documentary"];
 const SEARCH_DEBOUNCE_MS = 400;
@@ -55,7 +55,7 @@ export default function SearchClient({
           scroll: false,
         });
 
-        const data = await searchMovies(trimmedQuery);
+        const data = await searchMoviesAction(trimmedQuery);
         setSearchState({
           results: data.results,
           totalResults: data.total_results,

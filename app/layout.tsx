@@ -5,6 +5,7 @@ import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import MobileNav from "@/components/MobileNav";
+import AiChat from "@/components/AiChat";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -30,7 +31,10 @@ export default function RootLayout({
         className={`${inter.variable} min-h-screen flex flex-col antialiased`}
       >
         <Navbar />
-        <main className="flex-1">{children}</main>
+        <main className="flex-1">
+          {children}
+          <AiChat />
+        </main>
         <Footer />
         <MobileNav />
       </body>

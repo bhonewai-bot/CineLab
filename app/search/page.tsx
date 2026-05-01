@@ -1,5 +1,5 @@
 import SearchClient from "@/components/SearchClient";
-import { searchMovies } from "@/app/actions/search";
+import { searchMoviesAction } from "@/app/actions/search";
 
 export const metadata = {
   title: "Search — Cinelab",
@@ -16,7 +16,7 @@ export default async function SearchPage({
   // If a query is in the URL (e.g. /search?q=inception),
   // pre-fetch results server-side so the page loads with data already rendered.
   // This makes shareable links and browser back/forward work instantly.
-  const initialResults = q ? await searchMovies(q) : null;
+  const initialResults = q ? await searchMoviesAction(q) : null;
 
   return (
     <SearchClient initialQuery={q ?? ""} initialResults={initialResults} />
